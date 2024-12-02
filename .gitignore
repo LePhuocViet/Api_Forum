@@ -3,7 +3,9 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-
+**/src/main/rources/application.properties
+**/src/main/rources/credentials.json
+**/src/main/rources/application.yaml
 ### STS ###
 .apt_generated
 .classpath
