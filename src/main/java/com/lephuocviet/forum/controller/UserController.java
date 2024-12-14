@@ -19,7 +19,7 @@ import java.io.IOException;
 @AllArgsConstructor
 @RequestMapping("/users")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@CrossOrigin(origins = "*")
+
 public class UserController {
 
     IUserService userService;

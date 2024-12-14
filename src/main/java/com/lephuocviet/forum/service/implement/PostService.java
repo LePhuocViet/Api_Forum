@@ -6,6 +6,7 @@ import com.lephuocviet.forum.enity.Language;
 import com.lephuocviet.forum.enity.Posts;
 import com.lephuocviet.forum.enity.Users;
 import com.lephuocviet.forum.enums.ErrorCode;
+import com.lephuocviet.forum.enums.RolesCode;
 import com.lephuocviet.forum.exception.WebException;
 import com.lephuocviet.forum.mapper.PostMapper;
 import com.lephuocviet.forum.repository.*;
@@ -115,13 +116,15 @@ public class PostService implements IPostService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Users users = usersRepository.findUserByUsername(username)
                 .orElseThrow(() -> new WebException(ErrorCode.USER_NOT_FOUND));
+
         Posts posts = postsRepository.findPostsById(id).orElseThrow(() -> new WebException(ErrorCode.POST_NOT_FOUND));
 
-        if (!users.getId().equals(posts.getUsers().getId()) || !accountsRepository.existsByUsernameRoleAdmin(users.getAccounts().getUsername()))
+        if (users.getId().equals(posts.getUsers().getId()) ||
+                accountsRepository.existsByUsernameRoleAdmin(users.getAccounts().getUsername())){
+            postsRepository.delete(posts);
+        } else {
             throw new WebException(ErrorCode.NOT_USER_POST);
-        postsRepository.delete(posts);
+        }
 
     }
-
-
 }

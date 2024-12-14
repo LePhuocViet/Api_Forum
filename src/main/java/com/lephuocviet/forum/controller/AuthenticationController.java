@@ -19,7 +19,7 @@ import java.text.ParseException;
 @AllArgsConstructor
 @RequestMapping("/auth")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@CrossOrigin(origins = "*")
+
 public class AuthenticationController {
 
     IAuthService iAuthService;

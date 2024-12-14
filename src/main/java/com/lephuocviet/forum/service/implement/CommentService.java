@@ -1,5 +1,9 @@
 package com.lephuocviet.forum.service.implement;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.lephuocviet.forum.dto.requests.CommentRequest;
 import com.lephuocviet.forum.dto.responses.CommentResponse;
 import com.lephuocviet.forum.enity.Comments;
@@ -46,7 +50,7 @@ public class CommentService implements ICommentService {
 
     NoticesRepository noticesRepository;
     @Override
-    public CommentResponse createComment(CommentRequest commentRequest) {
+    public CommentResponse createComment(CommentRequest commentRequest) throws JsonProcessingException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Users user = usersRepository.findUserByUsername(username)
                 .orElseThrow(() -> new WebException(ErrorCode.USER_NOT_FOUND));
@@ -66,7 +70,7 @@ public class CommentService implements ICommentService {
         } else {
             message = message + user.getName() +  " and "  +  commentCount + " user "   +" are comments your post " + posts.getTitle();
         }
-
+        Notices resultNotice;
         Optional<Notices> noticesComment = noticesRepository.findByIdCommentAndIdPost(comments.getId(), commentRequest.getId_post());
         if (noticesComment.isEmpty()){
             Notices notices = Notices.builder()
@@ -76,17 +80,21 @@ public class CommentService implements ICommentService {
                     .message(message)
                     .status(false)
                     .build();
-            noticesRepository.save(notices);
+            resultNotice = noticesRepository.save(notices);
         }else {
             noticesComment.get().setMessage(message);
             noticesComment.get().setDate_created(LocalDate.now());
             noticesComment.get().setStatus(false);
-            noticesRepository.save(noticesComment.get());
+            resultNotice = noticesRepository.save(noticesComment.get());
         }
         if (posts.getUsers().getId() == user.getId()){
             return commentMapper.toCommentResponse(commentsRepository.save(comments));
         }
-        simpMessagingTemplate.convertAndSend("/topic/user/" + posts.getUsers().getId(),message);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        String resultNoticeJson = objectMapper.writeValueAsString(resultNotice);
+        simpMessagingTemplate.convertAndSend("/topic/user/" + posts.getUsers().getId(),resultNoticeJson);
         return commentMapper.toCommentResponse(commentsRepository.save(comments));
     }
 

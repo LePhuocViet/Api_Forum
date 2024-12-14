@@ -1,5 +1,9 @@
 package com.lephuocviet.forum.service.implement;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.lephuocviet.forum.dto.requests.LikeRequest;
 import com.lephuocviet.forum.dto.responses.LikeResponse;
 import com.lephuocviet.forum.enity.Likes;
@@ -35,7 +39,7 @@ public class LikeService implements ILikeService {
      NoticesRepository noticesRepository;
      LikeMapper likeMapper;
     @Override
-    public LikeResponse actionLike(LikeRequest likeRequest) {
+    public LikeResponse actionLike(LikeRequest likeRequest) throws JsonProcessingException {
         Users users = usersRepository.findUserByUsername(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new WebException(ErrorCode.USER_NOT_FOUND));
 
@@ -68,6 +72,7 @@ public class LikeService implements ILikeService {
         }
 
         Optional<Notices> notice = noticesRepository.findByIdPost(likeRequest.getId_post());
+        Notices resultNotice;
         if (notice.isEmpty()){
             Notices notices = Notices.builder()
                     .message(message)
@@ -76,19 +81,23 @@ public class LikeService implements ILikeService {
                     .status(false)
                     .date_created(LocalDate.now())
                     .build();
-            noticesRepository.save(notices);
+            resultNotice = noticesRepository.save(notices);
         } else {
             notice.get().setStatus(false);
             notice.get().setMessage(message);
             notice.get().setDate_created(LocalDate.now());
-            noticesRepository.save(notice.get());
+            resultNotice = noticesRepository.save(notice.get());
         }
         likesRepository.save(likes);
         if (posts.getUsers().getId() == users.getId()){
             return likeMapper.toLikeResponse(likes);
         }
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);  // Optional: disable date timestamps
 
-        simpMessagingTemplate.convertAndSend("/topic/user/" + posts.getUsers().getId(), message);
+        String resultNoticeJson = objectMapper.writeValueAsString(resultNotice);
+        simpMessagingTemplate.convertAndSend("/topic/user/" + posts.getUsers().getId(), resultNoticeJson);
         return likeMapper.toLikeResponse(likes);
     }
 }

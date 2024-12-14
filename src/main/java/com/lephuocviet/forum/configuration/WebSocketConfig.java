@@ -3,6 +3,7 @@ package com.lephuocviet.forum.configuration;
 import org.checkerframework.checker.units.qual.C;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -21,6 +22,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOrigins("http://127.0.0.1:5500").withSockJS();
+        registry.addEndpoint("/ws")
+                .setAllowedOrigins("http://127.0.0.1:5500"
+                        ,"https://maivloi2003.github.io/ForumLanguage",
+                        "http://localhost:1407", "https://maivloi2003.github.io")
+                .withSockJS();
     }
+
 }

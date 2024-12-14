@@ -21,7 +21,7 @@ public interface AccountsRepository extends JpaRepository<Accounts, String> {
     @Query("SELECT CASE WHEN count(a) > 0 THEN TRUE ELSE FALSE END " +
             "FROM Accounts a " +
             "LEFT JOIN a.roles r " +
-            "WHERE r.name LIKE 'ADMIN' ")
+            "WHERE r.name = 'ADMIN' ")
     boolean existsByUsernameRoleAdmin(String username);
 
 }

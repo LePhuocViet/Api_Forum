@@ -15,15 +15,17 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("/notices")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@CrossOrigin(origins = "*")
+
 public class NotificationController {
 
     INoticeService noticeService;
 
     @GetMapping("/{id}")
-    ResponseEntity<ApiResponses<List<NoticeResponse>>> getNoticesByUserId(@PathVariable("id") String id) {
+    ResponseEntity<ApiResponses<List<NoticeResponse>>> getNoticesByUserId(@PathVariable("id") String id,
+                                                                          @RequestParam(defaultValue = "0") int page,
+                                                                          @RequestParam(defaultValue = "10") int size){
         return ResponseEntity.ok(ApiResponses.<List<NoticeResponse>>builder()
-                .result(noticeService.getAllNoticeByIdUser(id))
+                .result(noticeService.getAllNoticeByIdUser(id,page,size))
                 .build());
     }
 

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 @RequestMapping("/posts")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@CrossOrigin(origins = "*")
+
 public class PostController {
 
     IPostService postService;

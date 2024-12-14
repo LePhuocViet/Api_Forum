@@ -22,7 +22,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @EnableMethodSecurity
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class SecurityConfig   {
 
 
     final JwtDecoderCustom jwtDecoderCustom;
@@ -65,6 +65,11 @@ public class SecurityConfig {
                                         .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                         .authenticationEntryPoint(new JwtEntryPoint()));
         httpSecurity.csrf(http -> http.disable());
+        httpSecurity.headers(headers ->
+                headers.contentSecurityPolicy(csp ->
+                        csp.policyDirectives("frame-ancestors 'self' http://localhost:1407 https://maivloi2003.github.io/ForumLanguage http://127.0.0.1:5500 https://maivloi2003.github.io")
+                )
+        );
         return httpSecurity.build();
     }
 
@@ -77,18 +82,21 @@ public class SecurityConfig {
         return jwtAuthenticationConverter;
 
     }
-//
-//      @Bean
-//    public WebMvcConfigurer corsConfigurer() {
-//        return new WebMvcConfigurer() {
-//            @Override
-//            public void addCorsMappings(CorsRegistry registry) {
-//                registry.addMapping("/**") // Cho phép tất cả endpoint
-//                        .allowedOrigins("http://127.0.0.1:5500") // Origin cho phép
-//                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Các phương thức cho phép
-//                        .allowedHeaders("*") // Cho phép tất cả header
-//                        .allowCredentials(true); // Cho phép gửi cookie nếu cần
-//            }
-//        };
-//    }
+
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        // Chỉ định các origin cụ thể, không sử dụng '*' hoặc patterns khi allowCredentials là true
+                        .allowedOrigins("http://localhost:1407", "https://maivloi2003.github.io/ForumLanguage","https://maivloi2003.github.io", "http://127.0.0.1:5500")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Các phương thức HTTP được phép
+                        .allowedHeaders("*") // Cho phép tất cả headers
+                        .allowCredentials(true); // Cho phép gửi cookie nếu cần
+            }
+        };
+    }
+
 }

@@ -33,6 +33,5 @@ public class AccountService implements IAccountService {
                 .active(false)
                 .message("Account is not active")
                 .build();
-
     }
 }

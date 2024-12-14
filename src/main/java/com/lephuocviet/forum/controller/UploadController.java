@@ -16,7 +16,7 @@ import java.io.IOException;
 @AllArgsConstructor
 @RequestMapping("/upload")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@CrossOrigin(origins = "*")
+
 public class UploadController {
 
     IUploadService uploadService;

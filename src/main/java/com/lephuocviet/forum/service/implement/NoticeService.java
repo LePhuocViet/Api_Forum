@@ -12,6 +12,8 @@ import com.lephuocviet.forum.service.INoticeService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -42,8 +44,9 @@ public class NoticeService implements INoticeService {
     }
 
     @Override
-    public List<NoticeResponse> getAllNoticeByIdUser(String idUser) {   
-        List<NoticeResponse> list = noticesRepository.findNoticesByUsers_Id(idUser);
+    public List<NoticeResponse> getAllNoticeByIdUser(String idUser, int page, int size) {
+        Pageable pageable =  PageRequest.of(page,size);
+        List<NoticeResponse> list = noticesRepository.findNoticesByUsers_Id(idUser,pageable);
         return list;
     }
 }

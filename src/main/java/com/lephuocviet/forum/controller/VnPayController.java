@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 @RequestMapping("/vnpay")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@CrossOrigin(origins = "*")
+
 public class VnPayController {
 
     IVnPayService vnPayService;

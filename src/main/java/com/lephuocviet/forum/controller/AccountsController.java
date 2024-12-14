@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 @RequestMapping("/accounts")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@CrossOrigin(origins = "*")
+
 public class AccountsController {
 
     IAccountService accountService;

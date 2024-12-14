@@ -8,5 +8,5 @@ public interface INoticeService {
 
     List<NoticeResponse> updateNoticeByIdUser(String idUser);
 
-    List<NoticeResponse> getAllNoticeByIdUser(String idUser);
+    List<NoticeResponse> getAllNoticeByIdUser(String idUser,int page, int size);
 }
