@@ -10,6 +10,7 @@ import com.lephuocviet.forum.enums.RolesCode;
 import com.lephuocviet.forum.exception.WebException;
 import com.lephuocviet.forum.mapper.PostMapper;
 import com.lephuocviet.forum.repository.*;
+import com.lephuocviet.forum.service.IChatGPTService;
 import com.lephuocviet.forum.service.IPostService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -32,15 +33,19 @@ public class PostService implements IPostService {
     LanguageRepository languageRepository;
     LikesRepository likesRepository;
     PostMapper postMapper;
-
+    IChatGPTService iChatGPTService;
     @Override
     public PostResponse createPost(PostRequest postRequest) {
+//        if (!iChatGPTService.checkPostIsLanguage(postRequest.getLanguage(),postRequest.getTitle(),postRequest.getContent())) {
+//            throw new WebException(ErrorCode.POST_WRONG);
+//        }
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Posts posts = postMapper.toPosts(postRequest);
         Users users = usersRepository.findUserByUsername(username)
                 .orElseThrow(() -> new WebException(ErrorCode.USER_NOT_FOUND));
         posts.setUsers(users);
         posts.setDate_created(LocalDate.now());
+
         Language language = languageRepository.findByName(postRequest.getLanguage())
                         .orElseThrow(() -> new WebException(ErrorCode.LANGUAGE_NOT_FOUND));
         posts.setLanguage(language);
@@ -53,7 +58,6 @@ public class PostService implements IPostService {
         if (SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser")){
             Pageable pageable =  PageRequest.of(page,size);
             Page<PostResponse> postPageResponseList = postsRepository.getPostPage(content,language,null,pageable);
-            if (postPageResponseList.isEmpty()) throw new WebException(ErrorCode.POST_NOT_FOUND);
             return postPageResponseList;
         } else {
             String username = SecurityContextHolder.getContext().getAuthentication().getName();

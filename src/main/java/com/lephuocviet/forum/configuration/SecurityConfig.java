@@ -2,6 +2,7 @@ package com.lephuocviet.forum.configuration;
 
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -24,6 +25,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class SecurityConfig   {
 
+    @Value("${CROSS.URL_LOCAL}")
+    String urlLocal;
+
+    @Value("${CROSS.URL_SERVER}")
+    String urlServer;
 
     final JwtDecoderCustom jwtDecoderCustom;
     String GET_ENDPOINT = "*";
@@ -67,7 +73,7 @@ public class SecurityConfig   {
         httpSecurity.csrf(http -> http.disable());
         httpSecurity.headers(headers ->
                 headers.contentSecurityPolicy(csp ->
-                        csp.policyDirectives("frame-ancestors 'self' http://localhost:1407 https://maivloi2003.github.io/ForumLanguage http://127.0.0.1:5500 https://maivloi2003.github.io")
+                        csp.policyDirectives("frame-ancestors 'self' " + urlLocal + " " + urlServer)
                 )
         );
         return httpSecurity.build();
@@ -91,7 +97,7 @@ public class SecurityConfig   {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         // Chỉ định các origin cụ thể, không sử dụng '*' hoặc patterns khi allowCredentials là true
-                        .allowedOrigins("http://localhost:1407", "https://maivloi2003.github.io/ForumLanguage","https://maivloi2003.github.io", "http://127.0.0.1:5500")
+                        .allowedOrigins(urlLocal,urlServer)
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Các phương thức HTTP được phép
                         .allowedHeaders("*") // Cho phép tất cả headers
                         .allowCredentials(true); // Cho phép gửi cookie nếu cần
