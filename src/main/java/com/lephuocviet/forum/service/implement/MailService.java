@@ -112,7 +112,7 @@ public class MailService implements IMailService {
         simpleMailMessage.setFrom("vietyts2003@gmail.com");
         simpleMailMessage.setText("Please click on the following link to change your password.\n" +
                 "Link is only valid for 5 minutes \n" +
-                MAIL_URL + "/pages/reset-password.html?token=" + token);
+                MAIL_URL + "/reset-password.html?token=" + token);
         if (mailSenderRepository.existsById(accounts.getId())) {
             mailSenderRepository.deleteById(accounts.getId());
         }

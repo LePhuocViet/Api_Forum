@@ -1,5 +1,6 @@
 package com.lephuocviet.forum.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.lephuocviet.forum.dto.requests.PostRequest;
 import com.lephuocviet.forum.dto.responses.PostResponse;
 import com.lephuocviet.forum.dto.responses.UserResponse;
@@ -23,7 +24,7 @@ public class PostController {
     IPostService postService;
 
     @PostMapping
-    ResponseEntity<ApiResponses<PostResponse>> createPost(@RequestBody PostRequest postRequest) {
+    ResponseEntity<ApiResponses<PostResponse>> createPost(@RequestBody PostRequest postRequest) throws JsonProcessingException {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponses.<PostResponse>builder()
                 .result(postService.createPost(postRequest))
                 .build());

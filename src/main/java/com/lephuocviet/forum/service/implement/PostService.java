@@ -1,16 +1,21 @@
 package com.lephuocviet.forum.service.implement;
 import java.util.Optional;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.lephuocviet.forum.dto.requests.PostRequest;
 import com.lephuocviet.forum.dto.responses.PostResponse;
 import com.lephuocviet.forum.enity.Language;
+import com.lephuocviet.forum.enity.Notices;
 import com.lephuocviet.forum.enity.Posts;
 import com.lephuocviet.forum.enity.Users;
 import com.lephuocviet.forum.enums.ErrorCode;
-import com.lephuocviet.forum.enums.RolesCode;
 import com.lephuocviet.forum.exception.WebException;
 import com.lephuocviet.forum.mapper.PostMapper;
 import com.lephuocviet.forum.repository.*;
-import com.lephuocviet.forum.service.IChatGPTService;
+import com.lephuocviet.forum.service.IAIService;
 import com.lephuocviet.forum.service.IPostService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +23,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -32,17 +38,36 @@ public class PostService implements IPostService {
     AccountsRepository accountsRepository;
     LanguageRepository languageRepository;
     LikesRepository likesRepository;
+    NoticesRepository noticesRepository;
     PostMapper postMapper;
-    IChatGPTService iChatGPTService;
+    IAIService iAIService;
+    SimpMessagingTemplate simpMessagingTemplate;
     @Override
-    public PostResponse createPost(PostRequest postRequest) {
-//        if (!iChatGPTService.checkPostIsLanguage(postRequest.getLanguage(),postRequest.getTitle(),postRequest.getContent())) {
-//            throw new WebException(ErrorCode.POST_WRONG);
-//        }
+    public PostResponse createPost(PostRequest postRequest) throws JsonProcessingException {
+
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Posts posts = postMapper.toPosts(postRequest);
         Users users = usersRepository.findUserByUsername(username)
                 .orElseThrow(() -> new WebException(ErrorCode.USER_NOT_FOUND));
+        if (!iAIService.checkPostIsLanguage(postRequest.getLanguage(),postRequest.getTitle(),postRequest.getContent())) {
+            System.out.println(iAIService.checkPostIsLanguage(postRequest.getLanguage(),postRequest.getTitle(),postRequest.getContent()));
+            Notices notices = Notices.builder()
+                    .message("We found the post invalid so the article cannot be posted please read the article policy again")
+                    .users(users)
+                    .status(false)
+                    .date_created(LocalDate.now())
+                    .build();
+            Notices resultNotice;
+            resultNotice = noticesRepository.save(notices);
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
+            objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+            String resultNoticeJson = objectMapper.writeValueAsString(resultNotice);
+            simpMessagingTemplate.convertAndSend("/topic/user/" + users.getId(), resultNoticeJson);
+            throw new WebException(ErrorCode.POST_WRONG);
+
+        }
         posts.setUsers(users);
         posts.setDate_created(LocalDate.now());
 
