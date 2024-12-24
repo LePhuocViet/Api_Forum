@@ -28,7 +28,7 @@ public interface NoticesRepository extends JpaRepository<Notices, String> {
             "From Notices n " +
             "left Join n.users u " +
             "WHERE :id = u.id " +
-            "ORDER BY n.date_created ASC")
+            "ORDER BY n.date_created DESC ")
     List<NoticeResponse> findNoticesByUsers_Id(@Param("id") String id, Pageable pageable);
 }
 

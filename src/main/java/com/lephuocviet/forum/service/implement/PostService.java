@@ -52,7 +52,7 @@ public class PostService implements IPostService {
         if (!iAIService.checkPostIsLanguage(postRequest.getLanguage(),postRequest.getTitle(),postRequest.getContent())) {
             System.out.println(iAIService.checkPostIsLanguage(postRequest.getLanguage(),postRequest.getTitle(),postRequest.getContent()));
             Notices notices = Notices.builder()
-                    .message("We found the post invalid so the article cannot be posted please read the article policy again")
+                    .message("We found that your submitted post violates our policies and has not been published. Please review our posting policies.")
                     .users(users)
                     .status(false)
                     .date_created(LocalDate.now())

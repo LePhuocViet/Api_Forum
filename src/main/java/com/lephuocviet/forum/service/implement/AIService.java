@@ -56,13 +56,17 @@ public class AIService implements IAIService {
             );
 
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                // Xử lý JSON response
                 JsonNode responseBody = objectMapper.readTree(response.getBody());
                 String aiResponse = responseBody.get(0).get("generated_text").asText().split("\n")[0].trim();
-                String lastSixChars = aiResponse.substring(aiResponse.length() - 6);
-                System.out.println(aiResponse);
-                System.out.println(lastSixChars);
-                if (".True.".equalsIgnoreCase(lastSixChars)) {
+                String[] words = aiResponse.split("\\s+");
+                int length = words.length;
+                String lastSixWords = "";
+                for (int i = Math.max(0, length - 6); i < length; i++) {
+                    lastSixWords += words[i] + " ";
+                }
+                lastSixWords = lastSixWords.trim();
+                System.out.println(lastSixWords);
+                if (lastSixWords.contains("True")) {
                     return true;
                 }
             }
@@ -70,7 +74,6 @@ public class AIService implements IAIService {
             e.printStackTrace();
         }
 
-        // Trường hợp xảy ra lỗi, trả về false
         return false;
     }
 }

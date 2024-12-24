@@ -24,6 +24,7 @@ public class Accounts {
     String password;
     boolean active;
     boolean status;
+
     @ManyToMany
     Set<Roles> roles;
 
